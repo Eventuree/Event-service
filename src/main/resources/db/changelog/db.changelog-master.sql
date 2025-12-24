@@ -1,2 +1,0 @@
-
--- include file:/db/changelog/001-init.sql

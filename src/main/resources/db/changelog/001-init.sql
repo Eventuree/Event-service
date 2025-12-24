@@ -1,18 +1,10 @@
+-- liquibase formatted sql
+-- changeset ebudovskyi:1
 CREATE TABLE IF NOT EXISTS event_categories(
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     slug VARCHAR(100) UNIQUE,
     description VARCHAR(500)
-);
-
-CREATE TABLE IF NOT EXISTS event_locations(
-    id BIGSERIAL,
-    country VARCHAR (200),
-    region VARCHAR (200),
-    city VARCHAR (200),
-    street VARCHAR (200),
-    house_number INT,
-    additional_info VARCHAR(500)
 );
 
 CREATE TABLE IF NOT EXISTS events (
@@ -26,7 +18,7 @@ CREATE TABLE IF NOT EXISTS events (
     max_participants SMALLINT,
     category_id BIGINT,
     banner_photo_url VARCHAR(255),
-    location_id BIGINT NOT NULL,
+    location VARCHAR(200),
     min_age SMALLINT,
     max_age SMALLINT,
     required_gender VARCHAR(50),
@@ -34,7 +26,6 @@ CREATE TABLE IF NOT EXISTS events (
     is_alive BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     FOREIGN KEY (category_id) REFERENCES event_categories(id),
-    FOREIGN KEY (location_id) REFERENCES event_locations(id),
     CHECK (min_age IS NULL OR max_age IS NULL OR min_age <= max_age),
     CHECK (max_participants IS NULL OR max_participants > 0)
 );

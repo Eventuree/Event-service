@@ -47,9 +47,7 @@ public class Event {
     @Column (name = "banner_photo_url")
     private String bannerPhotoUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", nullable = false)
-    private Location location;
+    private String location;
 
     @Column (name = "min_age")
     private Short minAge;
