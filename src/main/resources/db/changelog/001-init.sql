@@ -1,5 +1,5 @@
 -- liquibase formatted sql
--- changeset ebudovskyi:1
+-- changeset ebudovskyi:create-tables
 CREATE TABLE IF NOT EXISTS event_categories(
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
