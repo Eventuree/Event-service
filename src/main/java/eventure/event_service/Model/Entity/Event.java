@@ -1,9 +1,10 @@
 package eventure.event_service.Model.Entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eventure.event_service.Model.EventStatus;
 import eventure.event_service.Model.Gender;
 import jakarta.persistence.*;
-import jdk.jfr.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,6 +43,7 @@ public class Event {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnore
     private EventCategory category;
 
     @Column (name = "banner_photo_url")
@@ -65,7 +67,11 @@ public class Event {
     @Column (name = "is_alive")
     private Boolean isAlive;
 
+    @Column(name = "view_count")
+    private Long viewCount = 0L;
+
+    @com.fasterxml.jackson.annotation.JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @CreationTimestamp
-    @Column (name = "created_at")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 }
