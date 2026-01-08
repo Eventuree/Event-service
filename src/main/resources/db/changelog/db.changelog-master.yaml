@@ -3,5 +3,3 @@ databaseChangeLog:
       file: db/changelog/001-init.sql
   - include:
       file: db/changelog/002-add-view-count.sql
-  - include:
-      file: db/changelog/003-insert-test-data.sql
