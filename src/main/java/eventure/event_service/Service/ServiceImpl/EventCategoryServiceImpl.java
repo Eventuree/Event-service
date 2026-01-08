@@ -1,0 +1,45 @@
+package eventure.event_service.Service.ServiceImpl;
+
+import eventure.event_service.Model.Entity.EventCategory;
+import eventure.event_service.Repository.EventCategoryRepository;
+import eventure.event_service.Service.EventCategoryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class EventCategoryServiceImpl implements EventCategoryService {
+
+    private final EventCategoryRepository categoryRepository;
+
+    @Override
+    public List<EventCategory> getAllCategories() {
+        return categoryRepository.findAll();
+    }
+
+    @Override
+    public EventCategory createCategory(EventCategory category) {
+        return categoryRepository.save(category);
+    }
+
+    @Override
+    public EventCategory updateCategory(Long id, EventCategory categoryDetails) {
+        EventCategory category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+
+        category.setName(categoryDetails.getName());
+        category.setDescription(categoryDetails.getDescription());
+
+        return categoryRepository.save(category);
+    }
+
+    @Override
+    public void deleteCategory(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new RuntimeException("Category not found with id: " + id);
+        }
+        categoryRepository.deleteById(id);
+    }
+}
