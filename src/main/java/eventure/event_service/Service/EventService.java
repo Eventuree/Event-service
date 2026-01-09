@@ -7,6 +7,8 @@ public interface EventService {
 
     List<Event> getTrendingEvents();
 
+    List<Event> getAllEvents();
+
     Event getEventById(Long id);
 
     Event createEvent(Event event);
