@@ -1,6 +1,6 @@
 
 services:
-  server:
+  event-service:
     build:
       context: .
     ports:
@@ -13,6 +13,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - app-network
   db:
     image: postgres:18-alpine
     restart: always
@@ -30,6 +32,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 15
+    networks:
+      - app-network
 volumes:
   db-data:
 
+networks:
+  app-network:
+    external: true
+    name: eventure-network

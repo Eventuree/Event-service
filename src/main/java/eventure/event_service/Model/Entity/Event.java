@@ -32,9 +32,11 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventStatus status;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "event_date")
     private LocalDateTime eventDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column (name = "original_event_date")
     private LocalDateTime originalEventDate;
 
@@ -70,7 +72,7 @@ public class Event {
     @Column(name = "view_count")
     private Long viewCount = 0L;
 
-    @com.fasterxml.jackson.annotation.JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
