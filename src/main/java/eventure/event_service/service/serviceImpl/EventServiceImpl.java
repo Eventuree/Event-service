@@ -4,12 +4,14 @@ import eventure.event_service.dto.EventCreateDto;
 import eventure.event_service.dto.EventPageResponse;
 import eventure.event_service.dto.EventUpdateDto;
 import eventure.event_service.dto.mapper.EventMapper;
+import eventure.event_service.exception.ResourceNotFoundException;
 import eventure.event_service.model.EventStatus;
 import eventure.event_service.model.entity.Event;
 import eventure.event_service.model.entity.EventCategory;
 import eventure.event_service.repository.EventCategoryRepository;
 import eventure.event_service.repository.EventRepository;
 import eventure.event_service.service.EventService;
+import eventure.event_service.service.aws.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventCategoryRepository categoryRepository;
     private final EventMapper eventMapper;
+    private final ImageService imageService;
 
     @Override
     public List<Event> getTrendingEvents() {
@@ -37,7 +40,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public Event getEventById(Long id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
 
         event.setViewCount(event.getViewCount() + 1);
         return eventRepository.save(event);
@@ -49,10 +52,14 @@ public class EventServiceImpl implements EventService {
         Event event = eventMapper.toEntityCreate(eventDto);
 
         EventCategory category = categoryRepository.findById(eventDto.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found by id: " + eventDto.getCategoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found by id: " + eventDto.getCategoryId()));
         event.setCategory(category);
 
+        String imageUrl = imageService.uploadBase64Image(eventDto.getPhoto());
+        event.setBannerPhotoUrl(imageUrl);
+
         event.setStatus(EventStatus.PUBLISHED);
+
         return eventRepository.save(event);
     }
 
@@ -60,7 +67,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event updateEventById(Long id, EventUpdateDto eventDto) {
         Event existingEvent = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         LocalDateTime existingEventDate = existingEvent.getEventDate();
         eventMapper.updateEntityFromDto(eventDto, existingEvent);
@@ -71,9 +78,12 @@ public class EventServiceImpl implements EventService {
 
         if (eventDto.getCategoryId() != null) {
             EventCategory category = categoryRepository.findById(eventDto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
             existingEvent.setCategory(category);
         }
+
+        String imageUrl = imageService.uploadBase64Image(eventDto.getPhoto());
+        existingEvent.setBannerPhotoUrl(imageUrl);
 
         return eventRepository.save(existingEvent);
     }

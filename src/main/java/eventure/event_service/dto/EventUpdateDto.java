@@ -21,7 +21,7 @@ public class EventUpdateDto {
     private Short minAge;
     private Short maxAge;
     private Gender requiredGender;
-    private MultipartFile photo;
+    private String photo;
     private String chatLink;
     private Boolean isAlive;
     private Long viewCount;

@@ -24,6 +24,6 @@ public class EventCreateDto {
     private Short minAge;
     private Short maxAge;
     private Gender requiredGender;
-    private MultipartFile photo;
+    private String photo;
     private String chatLink;
 }
