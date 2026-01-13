@@ -1,4 +1,4 @@
-package eventure.event_service.Model.Entity;
+package eventure.event_service.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -10,11 +10,10 @@ CREATE TABLE IF NOT EXISTS event_categories(
 CREATE TABLE IF NOT EXISTS events (
     id BIGSERIAL PRIMARY KEY,
     organizer_id BIGINT NOT NULL ,
-    title VARCHAR(200) NOT NULL,
-    description VARCHAR(500),
+    title VARCHAR(100) NOT NULL,
+    description VARCHAR(200),
     status VARCHAR(50) NOT NULL,
     event_date TIMESTAMP NOT NULL,
-    original_event_date TIMESTAMP,
     max_participants SMALLINT,
     category_id BIGINT,
     banner_photo_url VARCHAR(255),

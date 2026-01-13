@@ -1,6 +1,6 @@
-package eventure.event_service.Repository;
+package eventure.event_service.repository;
 
-import eventure.event_service.Model.Entity.Event;
+import eventure.event_service.model.entity.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

@@ -1,8 +1,8 @@
-package eventure.event_service.Service.ServiceImpl;
+package eventure.event_service.service.serviceImpl;
 
-import eventure.event_service.Model.Entity.EventCategory;
-import eventure.event_service.Repository.EventCategoryRepository;
-import eventure.event_service.Service.EventCategoryService;
+import eventure.event_service.model.entity.EventCategory;
+import eventure.event_service.repository.EventCategoryRepository;
+import eventure.event_service.service.EventCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

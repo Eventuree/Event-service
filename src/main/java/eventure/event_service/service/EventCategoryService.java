@@ -1,6 +1,6 @@
-package eventure.event_service.Service;
+package eventure.event_service.service;
 
-import eventure.event_service.Model.Entity.EventCategory;
+import eventure.event_service.model.entity.EventCategory;
 import java.util.List;
 
 public interface EventCategoryService {

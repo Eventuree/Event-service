@@ -1,9 +1,9 @@
-package eventure.event_service.Model.Entity;
+package eventure.event_service.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import eventure.event_service.Model.EventStatus;
-import eventure.event_service.Model.Gender;
+import eventure.event_service.model.EventStatus;
+import eventure.event_service.model.Gender;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,10 +36,6 @@ public class Event {
     @Column(name = "event_date")
     private LocalDateTime eventDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @Column (name = "original_event_date")
-    private LocalDateTime originalEventDate;
-
     @Column (name = "max_participants")
     private Integer maxParticipants;
 
@@ -67,7 +63,7 @@ public class Event {
     private String chatLink;
 
     @Column (name = "is_alive")
-    private Boolean isAlive;
+    private Boolean isAlive = true;
 
     @Column(name = "view_count")
     private Long viewCount = 0L;
