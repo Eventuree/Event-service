@@ -1,7 +1,7 @@
-package eventure.event_service.Controller;
+package eventure.event_service.controller;
 
-import eventure.event_service.Model.Entity.EventCategory;
-import eventure.event_service.Service.EventCategoryService;
+import eventure.event_service.model.entity.EventCategory;
+import eventure.event_service.service.EventCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

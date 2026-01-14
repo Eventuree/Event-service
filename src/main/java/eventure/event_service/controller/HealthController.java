@@ -1,6 +1,6 @@
-package eventure.event_service.Controller;
+package eventure.event_service.controller;
 
-import eventure.event_service.Repository.EventRepository;
+import eventure.event_service.repository.EventRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
