@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 
 @Setter
 @Getter
+@NoArgsConstructor
 public class EventCreateDto {
     @NotNull
     private Long organizerId;
@@ -24,6 +26,5 @@ public class EventCreateDto {
     private Short minAge;
     private Short maxAge;
     private Gender requiredGender;
-    private String photo;
     private String chatLink;
 }

@@ -5,9 +5,11 @@ import eventure.event_service.dto.EventPageResponse;
 import eventure.event_service.dto.EventUpdateDto;
 import eventure.event_service.model.entity.Event;
 import eventure.event_service.service.EventService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -36,13 +38,16 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Event> updateEventById(@PathVariable Long id, @RequestBody EventUpdateDto eventDto){
-        return ResponseEntity.ok(eventService.updateEventById(id, eventDto));
+    public ResponseEntity<Event> updateEventById(@PathVariable Long id,
+                                                 @RequestPart EventUpdateDto eventDto,
+                                                 @RequestPart(value = "photo", required = false) MultipartFile photo){
+        return ResponseEntity.ok(eventService.updateEventById(id, eventDto, photo));
     }
 
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody EventCreateDto eventDto){
-        Event createdEvent = eventService.createEvent(eventDto);
+    public ResponseEntity<Event> createEvent(@RequestPart("event") @Valid EventCreateDto eventDto,
+                                             @RequestPart(value = "photo", required = false) MultipartFile photo){
+        Event createdEvent = eventService.createEvent(eventDto, photo);
         return ResponseEntity.created(URI.create("/api/v1/events/" + createdEvent.getId())).body(createdEvent);
     }
 
