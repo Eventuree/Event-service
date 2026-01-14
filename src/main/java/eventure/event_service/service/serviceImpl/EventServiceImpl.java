@@ -11,13 +11,14 @@ import eventure.event_service.model.entity.EventCategory;
 import eventure.event_service.repository.EventCategoryRepository;
 import eventure.event_service.repository.EventRepository;
 import eventure.event_service.service.EventService;
-import eventure.event_service.service.aws.ImageService;
+import eventure.event_service.service.imageStorage.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +31,7 @@ public class EventServiceImpl implements EventService {
     private final EventCategoryRepository categoryRepository;
     private final EventMapper eventMapper;
     private final ImageService imageService;
+    private final TransactionTemplate transactionTemplate;
 
     @Override
     public List<Event> getTrendingEvents() {
@@ -39,53 +41,62 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Event getEventById(Long id) {
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+        eventRepository.incrementViewCount(id);
 
-        event.setViewCount(event.getViewCount() + 1);
-        return eventRepository.save(event);
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
     }
 
-    @Transactional
     @Override
     public Event createEvent(EventCreateDto eventDto) {
-        Event event = eventMapper.toEntityCreate(eventDto);
+        String imageUrl = (eventDto.getPhoto() != null && !eventDto.getPhoto().isBlank())
+                ? imageService.uploadBase64Image(eventDto.getPhoto()).join()
+                : null;
 
-        EventCategory category = categoryRepository.findById(eventDto.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found by id: " + eventDto.getCategoryId()));
-        event.setCategory(category);
+        return transactionTemplate.execute(status -> {
+            Event event = eventMapper.toEntityCreate(eventDto);
 
-        String imageUrl = imageService.uploadBase64Image(eventDto.getPhoto());
-        event.setBannerPhotoUrl(imageUrl);
-
-        event.setStatus(EventStatus.PUBLISHED);
-
-        return eventRepository.save(event);
-    }
-
-    @Transactional
-    @Override
-    public Event updateEventById(Long id, EventUpdateDto eventDto) {
-        Event existingEvent = eventRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
-
-        LocalDateTime existingEventDate = existingEvent.getEventDate();
-        eventMapper.updateEntityFromDto(eventDto, existingEvent);
-
-        if (existingEventDate.isBefore(existingEvent.getEventDate())){
-            existingEvent.setStatus(EventStatus.DELAYED);
-        }
-
-        if (eventDto.getCategoryId() != null) {
             EventCategory category = categoryRepository.findById(eventDto.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-            existingEvent.setCategory(category);
-        }
 
-        String imageUrl = imageService.uploadBase64Image(eventDto.getPhoto());
-        existingEvent.setBannerPhotoUrl(imageUrl);
+            event.setCategory(category);
+            event.setBannerPhotoUrl(imageUrl);
+            event.setStatus(EventStatus.PUBLISHED);
 
-        return eventRepository.save(existingEvent);
+            return eventRepository.save(event);
+        });
+    }
+
+    @Override
+    public Event updateEventById(Long id, EventUpdateDto eventDto) {
+        String newImageUrl = (eventDto.getPhoto() != null && !eventDto.getPhoto().isBlank())
+                ? imageService.uploadBase64Image(eventDto.getPhoto()).join()
+                : null;
+
+        return transactionTemplate.execute(status -> {
+            Event existingEvent = eventRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+
+            LocalDateTime originalDate = existingEvent.getEventDate();
+
+            eventMapper.updateEntityFromDto(eventDto, existingEvent);
+
+            if (existingEvent.getEventDate().isAfter(originalDate)) {
+                existingEvent.setStatus(EventStatus.DELAYED);
+            }
+
+            if (eventDto.getCategoryId() != null) {
+                EventCategory category = categoryRepository.findById(eventDto.getCategoryId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+                existingEvent.setCategory(category);
+            }
+
+            if (newImageUrl != null) {
+                existingEvent.setBannerPhotoUrl(newImageUrl);
+            }
+
+            return eventRepository.save(existingEvent);
+        });
     }
 
     @Override
