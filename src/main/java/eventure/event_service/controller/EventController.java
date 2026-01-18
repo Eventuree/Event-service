@@ -2,8 +2,8 @@ package eventure.event_service.controller;
 
 import eventure.event_service.dto.EventCreateDto;
 import eventure.event_service.dto.EventPageResponse;
+import eventure.event_service.dto.EventResponseDto;
 import eventure.event_service.dto.EventUpdateDto;
-import eventure.event_service.model.entity.Event;
 import eventure.event_service.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,37 +22,38 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/trending")
-    public ResponseEntity<List<Event>> getTrendingEvents() {
+    public ResponseEntity<List<EventResponseDto>> getTrendingEvents() {
         return ResponseEntity.ok(eventService.getTrendingEvents());
     }
 
     @GetMapping("")
-    public ResponseEntity<EventPageResponse> getPaginatedEvents(@RequestParam(required = false, defaultValue = "0") Integer page,
-                                                                @RequestParam(required = false, defaultValue = "10") Integer limit) {
+    public ResponseEntity<EventPageResponse> getPaginatedEvents(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer limit) {
         return ResponseEntity.ok(eventService.getAllEventsPagination(page, limit));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Event> getEventById(@PathVariable Long id) {
+    public ResponseEntity<EventResponseDto> getEventById(@PathVariable Long id) {
         return ResponseEntity.ok(eventService.getEventById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Event> updateEventById(@PathVariable Long id,
+    public ResponseEntity<EventResponseDto> updateEventById(@PathVariable Long id,
                                                  @RequestPart EventUpdateDto eventDto,
                                                  @RequestPart(value = "photo", required = false) MultipartFile photo){
         return ResponseEntity.ok(eventService.updateEventById(id, eventDto, photo));
     }
 
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestPart("event") @Valid EventCreateDto eventDto,
+    public ResponseEntity<EventResponseDto> createEvent(@RequestPart("event") @Valid EventCreateDto eventDto,
                                              @RequestPart(value = "photo", required = false) MultipartFile photo){
-        Event createdEvent = eventService.createEvent(eventDto, photo);
+        EventResponseDto createdEvent = eventService.createEvent(eventDto, photo);
         return ResponseEntity.created(URI.create("/api/v1/events/" + createdEvent.getId())).body(createdEvent);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEventById(@PathVariable Long id){
+    public ResponseEntity<?> deleteEventById(@PathVariable Long id) {
         eventService.deleteEventById(id);
         return ResponseEntity.noContent().build();
     }

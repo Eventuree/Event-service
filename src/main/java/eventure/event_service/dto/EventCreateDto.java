@@ -22,6 +22,7 @@ public class EventCreateDto {
     @NotBlank private String description;
     @NotNull private Long categoryId;
     @NotNull private LocalDateTime eventDate;
+    private String location;
     private Integer maxParticipants;
     private Short minAge;
     private Short maxAge;

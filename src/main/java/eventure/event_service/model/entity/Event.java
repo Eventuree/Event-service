@@ -62,7 +62,8 @@ public class Event {
     @Column (name = "chat_link")
     private String chatLink;
 
-    @Column (name = "is_alive")
+    @Column(name = "is_alive", nullable = false)
+    @Builder.Default
     private Boolean isAlive = true;
 
     @Column(name = "view_count")
