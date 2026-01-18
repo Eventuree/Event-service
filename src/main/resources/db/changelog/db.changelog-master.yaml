@@ -5,3 +5,7 @@ databaseChangeLog:
       file: db/changelog/002-add-view-count.sql
   - include:
       file: db/changelog/add-events-table.sql
+  - include:
+      file: db/changelog/rename-event_categories-table.sql
+  - include:
+      file: db/changelog/insert-categories.sql

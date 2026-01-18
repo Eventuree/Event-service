@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 @Entity
-@Table(name = "event_categories")
+@Table(name = "categories")
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventCategory {
