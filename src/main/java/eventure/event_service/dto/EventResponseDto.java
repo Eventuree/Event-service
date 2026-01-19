@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import eventure.event_service.model.EventStatus;
 import eventure.event_service.model.Gender;
 import eventure.event_service.model.entity.EventCategory;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

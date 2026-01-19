@@ -5,13 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eventure.event_service.model.EventStatus;
 import eventure.event_service.model.Gender;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Builder
 @Data
@@ -26,6 +25,7 @@ public class Event {
 
     @Column(name = "organizer_id")
     private Long organizerId;
+
     private String title;
     private String description;
 
@@ -36,7 +36,7 @@ public class Event {
     @Column(name = "event_date")
     private LocalDateTime eventDate;
 
-    @Column (name = "max_participants")
+    @Column(name = "max_participants")
     private Integer maxParticipants;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,22 +44,22 @@ public class Event {
     @JsonIgnore
     private EventCategory category;
 
-    @Column (name = "banner_photo_url")
+    @Column(name = "banner_photo_url")
     private String bannerPhotoUrl;
 
     private String location;
 
-    @Column (name = "min_age")
+    @Column(name = "min_age")
     private Short minAge;
 
-    @Column (name = "max_age")
+    @Column(name = "max_age")
     private Short maxAge;
 
     @Enumerated(EnumType.STRING)
-    @Column (name = "required_gender")
+    @Column(name = "required_gender")
     private Gender requiredGender;
 
-    @Column (name = "chat_link")
+    @Column(name = "chat_link")
     private String chatLink;
 
     @Column(name = "is_alive", nullable = false)
