@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class EventCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
     private String name;
     private String slug;
     private String description;

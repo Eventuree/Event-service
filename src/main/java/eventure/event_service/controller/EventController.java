@@ -1,17 +1,16 @@
 package eventure.event_service.controller;
 
-import eventure.event_service.dto.EventCreateDto;
-import eventure.event_service.dto.EventPageResponse;
-import eventure.event_service.dto.EventResponseDto;
-import eventure.event_service.dto.EventUpdateDto;
+import eventure.event_service.dto.*;
 import eventure.event_service.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -29,8 +28,9 @@ public class EventController {
     @GetMapping("")
     public ResponseEntity<EventPageResponse> getPaginatedEvents(
             @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer limit) {
-        return ResponseEntity.ok(eventService.getAllEventsPagination(page, limit));
+            @RequestParam(required = false, defaultValue = "10") Integer limit,
+            EventFiltersDto eventFilters) {
+        return ResponseEntity.ok(eventService.getAllEventsPagination(page, limit, eventFilters));
     }
 
     @GetMapping("/{id}")
