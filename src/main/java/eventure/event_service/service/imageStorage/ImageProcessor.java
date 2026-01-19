@@ -1,14 +1,9 @@
 package eventure.event_service.service.imageStorage;
 
 import eventure.event_service.dto.ImageMetadata;
+import java.io.IOException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Component
 public class ImageProcessor {
@@ -24,12 +19,7 @@ public class ImageProcessor {
 
         String extension = getExtension(mimeType);
 
-        return new ImageMetadata(
-                file.getInputStream(),
-                file.getSize(),
-                mimeType,
-                extension
-        );
+        return new ImageMetadata(file.getInputStream(), file.getSize(), mimeType, extension);
     }
 
     private String getExtension(String mimeType) {
