@@ -19,13 +19,12 @@ public class HealthController {
     }
 
     @GetMapping
-    public ResponseEntity<String> getHealth(){
+    public ResponseEntity<String> getHealth() {
         try {
             eventRepository.findById(1L);
-        }
-        catch (DataAccessException ex){
-            String message = "The database is not available: " + ex.getMessage() +
-                    ". Service is unhealthy";
+        } catch (DataAccessException ex) {
+            String message =
+                    "The database is not available: " + ex.getMessage() + ". Service is unhealthy";
             return new ResponseEntity<>(message, HttpStatus.SERVICE_UNAVAILABLE);
         }
 
