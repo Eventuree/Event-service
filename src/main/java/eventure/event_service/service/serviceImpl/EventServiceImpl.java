@@ -1,9 +1,6 @@
 package eventure.event_service.service.serviceImpl;
 
-import eventure.event_service.dto.EventCreateDto;
-import eventure.event_service.dto.EventPageResponse;
-import eventure.event_service.dto.EventResponseDto;
-import eventure.event_service.dto.EventUpdateDto;
+import eventure.event_service.dto.*;
 import eventure.event_service.dto.mapper.EventMapper;
 import eventure.event_service.exception.ResourceNotFoundException;
 import eventure.event_service.model.EventStatus;
@@ -129,11 +126,6 @@ public class EventServiceImpl implements EventService {
                         });
 
         return eventMapper.toDto(savedEvent);
-    }
-
-    @Override
-    public List<EventResponseDto> getAllEvents() {
-        return eventRepository.findAll().stream().map(eventMapper::toDto).toList();
     }
 
     @Override
