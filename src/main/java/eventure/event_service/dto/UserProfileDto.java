@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class UserProfileDto {
     private String name;
     private String avatarUrl;
+    private String email;
 }
