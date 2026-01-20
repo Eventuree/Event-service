@@ -3,10 +3,8 @@ package eventure.event_service.service.serviceImpl;
 import eventure.event_service.client.ProfileServiceClient;
 import eventure.event_service.dto.EventParticipantDto;
 import eventure.event_service.dto.UserProfileDto;
-import eventure.event_service.exception.AccessDeniedException;
-import eventure.event_service.exception.EventCapacityExceededException;
-import eventure.event_service.exception.ResourceNotFoundException;
-import eventure.event_service.exception.UnauthorizedException;
+import eventure.event_service.exception.*;
+import eventure.event_service.messaging.StatusNotificationPublisher;
 import eventure.event_service.model.RegistrationStatus;
 import eventure.event_service.model.entity.Event;
 import eventure.event_service.model.entity.EventParticipant;
@@ -15,19 +13,24 @@ import eventure.event_service.repository.EventParticipantRepository;
 import eventure.event_service.repository.EventRepository;
 import eventure.event_service.service.EventParticipantService;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventParticipantServiceImpl implements EventParticipantService {
 
     private final EventParticipantRepository participantRepository;
     private final EventRepository eventRepository;
     private final ProfileServiceClient profileServiceClient;
+    private final StatusNotificationPublisher statusPublisher;
 
     public List<EventParticipantDto> getParticipants(Long eventId, Long currentUserId) {
         Event event =
@@ -49,7 +52,7 @@ public class EventParticipantServiceImpl implements EventParticipantService {
                                 profile =
                                         profileServiceClient.getUserProfile(p.getId().getUserId());
                             } catch (Exception e) {
-                                profile = new UserProfileDto("Unknown User", null);
+                                profile = new UserProfileDto("Unknown User", null, null);
                             }
 
                             return EventParticipantDto.builder()
@@ -64,10 +67,8 @@ public class EventParticipantServiceImpl implements EventParticipantService {
     }
 
     @Transactional
-    public void changeStatus(
-            Long eventId, Long participantId, RegistrationStatus newStatus, Long currentUserId) {
+    public void changeStatus(Long eventId, Long participantId, RegistrationStatus newStatus, Long currentUserId) {
         Event event = getEventAndValidateOrganizer(eventId, currentUserId);
-
         EventParticipant participant = getParticipantOrThrow(participantId, eventId);
 
         if (newStatus == RegistrationStatus.APPROVED) {
@@ -76,6 +77,24 @@ public class EventParticipantServiceImpl implements EventParticipantService {
 
         participant.setStatus(newStatus);
         participantRepository.save(participant);
+
+        try {
+            UserProfileDto userProfile = profileServiceClient.getUserProfile(participantId);
+
+            if (userProfile != null && userProfile.getEmail() != null) {
+                statusPublisher.sendStatusChangeNotification(
+                        userProfile.getEmail(),
+                        userProfile.getName(),
+                        event.getTitle(),
+                        newStatus.name()
+                );
+            }
+        } catch (NotificationSendingException e) {
+            log.warn("Status changed to {}, but notification FAILED: {}", newStatus, e.getMessage());
+
+        } catch (Exception e) {
+            log.error("Unexpected error during notification sending", e);
+        }
     }
 
     public Long extractUserId(HttpServletRequest request) {
