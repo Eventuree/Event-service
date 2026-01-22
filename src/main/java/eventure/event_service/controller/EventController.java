@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/events")
 @RequiredArgsConstructor
@@ -28,8 +31,9 @@ public class EventController {
     @GetMapping("")
     public ResponseEntity<EventPageResponse> getPaginatedEvents(
             @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer limit) {
-        return ResponseEntity.ok(eventService.getAllEventsPagination(page, limit));
+            @RequestParam(required = false, defaultValue = "10") Integer limit,
+            EventFiltersDto eventFilters) {
+        return ResponseEntity.ok(eventService.getAllEventsPagination(page, limit, eventFilters));
     }
 
     @GetMapping("/{id}")

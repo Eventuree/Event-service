@@ -1,9 +1,6 @@
 package eventure.event_service.service.serviceImpl;
 
-import eventure.event_service.dto.EventCreateDto;
-import eventure.event_service.dto.EventPageResponse;
-import eventure.event_service.dto.EventResponseDto;
-import eventure.event_service.dto.EventUpdateDto;
+import eventure.event_service.dto.*;
 import eventure.event_service.dto.mapper.EventMapper;
 import eventure.event_service.exception.ResourceNotFoundException;
 import eventure.event_service.model.EventStatus;
@@ -13,12 +10,14 @@ import eventure.event_service.repository.EventCategoryRepository;
 import eventure.event_service.repository.EventRepository;
 import eventure.event_service.service.EventService;
 import eventure.event_service.service.imageStorage.ImageService;
+import eventure.event_service.utils.EventSpecificationsUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -130,15 +129,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventResponseDto> getAllEvents() {
-        return eventRepository.findAll().stream().map(eventMapper::toDto).toList();
-    }
-
-    @Override
-    public EventPageResponse getAllEventsPagination(int pageNo, int limit) {
+    public EventPageResponse getAllEventsPagination(int pageNo,
+                                                    int limit,
+                                                    EventFiltersDto eventFilters) {
         Pageable pageable = PageRequest.of(pageNo, limit);
+        Specification<Event> eventSpecifications =
+                EventSpecificationsUtils.buildFilters(eventFilters);
 
-        Page<Event> page = eventRepository.findAll(pageable);
+        Page<Event> page = eventRepository.findAll(eventSpecifications, pageable);
 
         List<Event> content = page.getContent();
 
