@@ -4,8 +4,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/002-add-view-count.sql
   - include:
-      file: db/changelog/add-events-table.sql
+      file: db/changelog/003-add-events-table.sql
   - include:
-      file: db/changelog/rename-event_categories-table.sql
+      file: db/changelog/004-rename-event_categories-table.sql
   - include:
-      file: db/changelog/insert-categories.sql
+      file: db/changelog/005-insert-categories.sql
+  - include:
+      file: db/changelog/006-create-ratings-table.sql

@@ -2,7 +2,9 @@ package eventure.event_service.exception.handler;
 
 import eventure.event_service.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.time.Instant;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,12 +46,27 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateRegistrationException.class)
     public ResponseEntity<ApiErrorResponse> handleDuplicateRegistration(
             DuplicateRegistrationException ex, HttpServletRequest request) {
-        return build(HttpStatus.CONFLICT,ex, request);
+        return build(HttpStatus.CONFLICT, ex, request);
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(ValidationException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ex, request);
+    }
+
+    @ExceptionHandler(DuplicateRatingException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicate(DuplicateRatingException e, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, e, request);
+    }
+
+    @ExceptionHandler(EventNotFinishedException.class)
+    public ResponseEntity<ApiErrorResponse> handleNotFinished(EventNotFinishedException e, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, e, request);
+    }
+
+    @ExceptionHandler(ParticipantNotAuthorizedException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnauthorized(ParticipantNotAuthorizedException e, HttpServletRequest request) {
+        return build(HttpStatus.FORBIDDEN, e, request);
     }
 
     private ResponseEntity<ApiErrorResponse> build(

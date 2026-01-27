@@ -13,4 +13,6 @@ public interface EventParticipantRepository
     long countById_EventIdAndStatus(Long eventId, RegistrationStatus status);
 
     boolean existsById(EventParticipantId id);
+
+    boolean existsById_EventIdAndId_UserIdAndStatus(Long eventId, Long userId, RegistrationStatus status);
 }
