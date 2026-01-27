@@ -41,6 +41,17 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ex, request);
     }
 
+    @ExceptionHandler(DuplicateRegistrationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateRegistration(
+            DuplicateRegistrationException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT,ex, request);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleValidation(ValidationException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, ex, request);
+    }
+
     private ResponseEntity<ApiErrorResponse> build(
             HttpStatus status, Exception ex, HttpServletRequest request) {
         ApiErrorResponse body =

@@ -83,4 +83,23 @@ public class EventController {
         participantService.changeStatus(eventId, userId, request.getStatus(), currentUserId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{id}/register")
+    public ResponseEntity<EventParticipantDto> registerForEvent(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        Long userId = participantService.extractUserId(request);
+        EventParticipantDto participant = participantService.registerParticipant(id, userId);
+        return ResponseEntity.created(URI.create("/api/v1/events/" + id + "/participants"))
+                .body(participant);
+    }
+
+    @DeleteMapping("/{id}/register")
+    public ResponseEntity<Void> cancelRegistration(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        Long userId = participantService.extractUserId(request);
+        participantService.cancelRegistration(id, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

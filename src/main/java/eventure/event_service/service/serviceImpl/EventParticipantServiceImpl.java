@@ -3,6 +3,7 @@ package eventure.event_service.service.serviceImpl;
 import eventure.event_service.client.ProfileServiceClient;
 import eventure.event_service.dto.EventParticipantDto;
 import eventure.event_service.dto.UserProfileDto;
+import eventure.event_service.dto.UserProfileSummaryDto;
 import eventure.event_service.exception.*;
 import eventure.event_service.messaging.StatusNotificationPublisher;
 import eventure.event_service.model.RegistrationStatus;
@@ -14,6 +15,7 @@ import eventure.event_service.repository.EventRepository;
 import eventure.event_service.service.EventParticipantService;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,12 +49,12 @@ public class EventParticipantServiceImpl implements EventParticipantService {
         return participants.stream()
                 .map(
                         p -> {
-                            UserProfileDto profile = null;
+                            UserProfileSummaryDto profile = null;
                             try {
                                 profile =
-                                        profileServiceClient.getUserProfile(p.getId().getUserId());
+                                        profileServiceClient.getUserProfileSummary(p.getId().getUserId());
                             } catch (Exception e) {
-                                profile = new UserProfileDto("Unknown User", null, null);
+                                profile = new UserProfileSummaryDto("Unknown User", null, null);
                             }
 
                             return EventParticipantDto.builder()
@@ -79,7 +81,7 @@ public class EventParticipantServiceImpl implements EventParticipantService {
         participantRepository.save(participant);
 
         try {
-            UserProfileDto userProfile = profileServiceClient.getUserProfile(participantId);
+            UserProfileSummaryDto userProfile = profileServiceClient.getUserProfileSummary(participantId);
 
             if (userProfile != null && userProfile.getEmail() != null) {
                 statusPublisher.sendStatusChangeNotification(
@@ -144,5 +146,109 @@ public class EventParticipantServiceImpl implements EventParticipantService {
         if (event.getMaxParticipants() != null && approvedCount >= event.getMaxParticipants()) {
             throw new EventCapacityExceededException("Event is full.");
         }
+    }
+
+    @Transactional
+    public EventParticipantDto registerParticipant(Long eventId, Long userId) {
+        Event event = eventRepository
+                .findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        EventParticipantId participantId = new EventParticipantId(userId, eventId);
+        participantRepository.findById(participantId).ifPresent(existing -> {
+            if (existing.getStatus() != RegistrationStatus.CANCELED &&
+                    existing.getStatus() != RegistrationStatus.LEFT) {
+                throw new DuplicateRegistrationException("User is already registered for this event");
+            }
+        });
+
+        UserProfileDto userProfile = profileServiceClient.getUserProfile(userId);
+        if (userProfile == null) {
+            throw new ResourceNotFoundException("User profile not found");
+        }
+
+        if (event.getMinAge() != null && userProfile.getAge() != null) {
+            if (userProfile.getAge() < event.getMinAge()) {
+                throw new ValidationException("User does not meet minimum age requirement");
+            }
+        }
+
+        if (event.getMaxAge() != null && userProfile.getAge() != null) {
+            if (event.getMaxAge() < userProfile.getAge()) {
+                throw new ValidationException("User does not meet maximum age requirement");
+            }
+        }
+
+        if (event.getRequiredGender() != null && userProfile.getGender() != null) {
+            if (!event.getRequiredGender().toString().equalsIgnoreCase(userProfile.getGender())) {
+                throw new ValidationException("User does not meet gender requirement");
+            }
+        }
+
+        if (event.getMaxParticipants() != null) {
+            long currentCount = participantRepository.countById_EventIdAndStatus(
+                    eventId, RegistrationStatus.APPROVED);
+
+            if (currentCount >= event.getMaxParticipants()) {
+                throw new EventCapacityExceededException("Event has reached maximum participants");
+            }
+        }
+
+        EventParticipant participant = EventParticipant.builder()
+                .id(participantId)
+                .event(event)
+                .status(RegistrationStatus.PENDING)
+                .joinedAt(LocalDateTime.now())
+                .build();
+
+        participantRepository.save(participant);
+
+
+        return EventParticipantDto.builder()
+                .userId(userId)
+                .status(RegistrationStatus.PENDING)
+                .joinedAt(participant.getJoinedAt())
+                .name(getFullName(userProfile))
+                .avatarUrl(userProfile.getPhotoUrl())
+                .build();
+    }
+
+    @Transactional
+    public void cancelRegistration(Long eventId, Long userId) {
+        Event event = eventRepository
+                .findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        EventParticipantId participantId = new EventParticipantId(userId, eventId);
+        EventParticipant participant = participantRepository
+                .findById(participantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+
+        if (participant.getStatus() == RegistrationStatus.CANCELED) {
+            throw new ValidationException("Registration is already canceled");
+        }
+
+        participant.setStatus(RegistrationStatus.CANCELED);
+        participantRepository.save(participant);
+
+        try {
+            UserProfileDto userProfile = profileServiceClient.getUserProfile(userId);
+            if (userProfile != null && userProfile.getEmail() != null) {
+                statusPublisher.sendStatusChangeNotification(
+                        userProfile.getEmail(),
+                        getFullName(userProfile),
+                        event.getTitle(),
+                        "CANCELED"
+                );
+            }
+        } catch (Exception e) {
+            log.warn("Cancellation successful but notification failed", e);
+        }
+    }
+
+    private String getFullName(UserProfileDto profile) {
+        String firstName = profile.getFirstName() != null ? profile.getFirstName() : "";
+        String lastName = profile.getLastName() != null ? profile.getLastName() : "";
+        return (firstName + " " + lastName).trim();
     }
 }

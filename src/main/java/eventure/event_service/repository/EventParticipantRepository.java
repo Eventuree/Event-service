@@ -11,4 +11,6 @@ public interface EventParticipantRepository
     List<EventParticipant> findById_EventId(Long eventId);
 
     long countById_EventIdAndStatus(Long eventId, RegistrationStatus status);
+
+    boolean existsById(EventParticipantId id);
 }
