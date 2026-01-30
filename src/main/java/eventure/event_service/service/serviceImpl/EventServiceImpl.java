@@ -2,6 +2,7 @@ package eventure.event_service.service.serviceImpl;
 
 import eventure.event_service.dto.*;
 import eventure.event_service.dto.mapper.EventMapper;
+import eventure.event_service.exception.ForbiddenException;
 import eventure.event_service.exception.ResourceNotFoundException;
 import eventure.event_service.model.EventStatus;
 import eventure.event_service.model.entity.Event;
@@ -83,21 +84,21 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventResponseDto updateEventById(Long id, EventUpdateDto eventDto, MultipartFile photo) {
+    public EventResponseDto updateEventById(Long id, EventUpdateDto eventDto, MultipartFile photo, Long currentUserId) {
+
+        Event existingEvent = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+
+        if (!existingEvent.getOrganizerId().equals(currentUserId)) {
+            throw new ForbiddenException("Only organizer can edit this event");
+        }
+
         final String imageUrl =
                 (photo != null && !photo.isEmpty()) ? imageService.uploadImage(photo).join() : null;
 
         Event savedEvent =
                 transactionTemplate.execute(
                         status -> {
-                            Event existingEvent =
-                                    eventRepository
-                                            .findById(id)
-                                            .orElseThrow(
-                                                    () ->
-                                                            new ResourceNotFoundException(
-                                                                    "Event not found with id: "
-                                                                            + id));
 
                             LocalDateTime originalDate = existingEvent.getEventDate();
 
@@ -152,7 +153,24 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void deleteEventById(Long id) {
+    public void deleteEventById(Long id, Long currentUserId) {
+
+        Event existingEvent = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+
+        if (!existingEvent.getOrganizerId().equals(currentUserId)) {
+            throw new ForbiddenException("Only organizer can delete this event");
+        }
+
         eventRepository.deleteById(id);
     }
+
+    @Override
+    public List<EventResponseDto> getUserEvents(Long userId) {
+        List<Event> events = eventRepository.findByOrganizerId(userId);
+        return events.stream()
+                .map(eventMapper::toDto)
+                .toList();
+    }
+
 }

@@ -69,6 +69,12 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, e, request);
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiErrorResponse> handleForbiddenException(
+            ForbiddenException ex, HttpServletRequest request) {
+        return build(HttpStatus.FORBIDDEN, ex, request);
+    }
+
     private ResponseEntity<ApiErrorResponse> build(
             HttpStatus status, Exception ex, HttpServletRequest request) {
         ApiErrorResponse body =
