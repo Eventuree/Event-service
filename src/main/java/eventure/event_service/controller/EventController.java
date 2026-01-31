@@ -1,14 +1,15 @@
 package eventure.event_service.controller;
 
 import eventure.event_service.dto.*;
-import eventure.event_service.exception.ForbiddenException;
 import eventure.event_service.service.EventParticipantService;
 import eventure.event_service.service.EventService;
+import eventure.event_service.utils.SecurityHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,7 @@ public class EventController {
 
     private final EventService eventService;
     private final EventParticipantService participantService;
+    private final SecurityHelper securityHelper;
 
     @GetMapping("/trending")
     public ResponseEntity<List<EventResponseDto>> getTrendingEvents() {
@@ -113,4 +115,15 @@ public class EventController {
         return ResponseEntity.ok(eventService.getUserEvents(userId));
     }
 
+    @GetMapping("/archive")
+    public ResponseEntity<Page<EventResponseDto>> getArchivedEvents(
+            @RequestParam(required = false) String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            HttpServletRequest request
+    ) {
+        Long userId = securityHelper.extractUserId(request);
+
+        return ResponseEntity.ok(eventService.getArchivedEvents(userId, type, page, limit));
+    }
 }

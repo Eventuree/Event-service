@@ -1,7 +1,7 @@
 package eventure.event_service.service;
 
 import eventure.event_service.dto.*;
-import eventure.event_service.model.entity.Event;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -21,4 +21,6 @@ public interface EventService {
     void deleteEventById(Long id, Long currentUserId);
 
     List<EventResponseDto> getUserEvents(Long userId);
+
+    Page<EventResponseDto> getArchivedEvents(Long userId, String type, int page, int limit);
 }

@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -173,4 +174,26 @@ public class EventServiceImpl implements EventService {
                 .toList();
     }
 
+    @Override
+    public Page<EventResponseDto> getArchivedEvents(Long userId, String type, int page, int limit) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("eventDate").descending());
+        LocalDateTime now = LocalDateTime.now();
+
+        Page<Event> events;
+
+        if (type == null || type.isBlank()) {
+            events = eventRepository.findAllArchivedEvents(userId, now, pageable);
+
+        } else if ("created".equalsIgnoreCase(type)) {
+            events = eventRepository.findAllByOrganizerIdAndEventDateBefore(userId, now, pageable);
+
+        } else if ("attended".equalsIgnoreCase(type)) {
+            events = eventRepository.findAttendedEvents(userId, now, pageable);
+
+        } else {
+            throw new IllegalArgumentException("Invalid archive type. Use 'created', 'attended' or leave empty.");
+        }
+
+        return events.map(eventMapper::toDto);
+    }
 }
