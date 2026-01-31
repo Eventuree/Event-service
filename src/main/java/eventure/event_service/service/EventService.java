@@ -16,7 +16,9 @@ public interface EventService {
 
     EventResponseDto createEvent(EventCreateDto eventDto, MultipartFile photo);
 
-    EventResponseDto updateEventById(Long id, EventUpdateDto eventDto, MultipartFile photo);
+    EventResponseDto updateEventById(Long id, EventUpdateDto eventDto, MultipartFile photo, Long currentUserId);
 
-    void deleteEventById(Long id);
+    void deleteEventById(Long id, Long currentUserId);
+
+    List<EventResponseDto> getUserEvents(Long userId);
 }

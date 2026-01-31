@@ -1,6 +1,7 @@
 package eventure.event_service.controller;
 
 import eventure.event_service.dto.*;
+import eventure.event_service.exception.ForbiddenException;
 import eventure.event_service.service.EventParticipantService;
 import eventure.event_service.service.EventService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -45,8 +43,11 @@ public class EventController {
     public ResponseEntity<EventResponseDto> updateEventById(
             @PathVariable Long id,
             @RequestPart EventUpdateDto eventDto,
-            @RequestPart(value = "photo", required = false) MultipartFile photo) {
-        return ResponseEntity.ok(eventService.updateEventById(id, eventDto, photo));
+            @RequestPart(value = "photo", required = false) MultipartFile photo,
+            HttpServletRequest request) {
+        Long currentUserId = participantService.extractUserId(request);
+
+        return ResponseEntity.ok(eventService.updateEventById(id, eventDto, photo, currentUserId));
     }
 
     @PostMapping
@@ -59,8 +60,10 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEventById(@PathVariable Long id) {
-        eventService.deleteEventById(id);
+    public ResponseEntity<?> deleteEventById(@PathVariable Long id,
+                                             HttpServletRequest request) {
+        Long currentUserId = participantService.extractUserId(request);
+        eventService.deleteEventById(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 
@@ -102,4 +105,12 @@ public class EventController {
         participantService.cancelRegistration(id, userId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<EventResponseDto>> getUserEvents(
+            @PathVariable Long userId) {
+
+        return ResponseEntity.ok(eventService.getUserEvents(userId));
+    }
+
 }
