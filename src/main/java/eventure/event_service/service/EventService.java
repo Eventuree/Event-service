@@ -1,6 +1,7 @@
 package eventure.event_service.service;
 
 import eventure.event_service.dto.*;
+import eventure.event_service.model.RegistrationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,4 +24,8 @@ public interface EventService {
     List<EventResponseDto> getUserEvents(Long userId);
 
     Page<EventResponseDto> getArchivedEvents(Long userId, String type, int page, int limit);
+
+    List<EventResponseDto> getUserEventsByStatus(Long userId, RegistrationStatus status);
+
+    List<EventResponseDto> getMyEvents(Long userId, RegistrationStatus status);
 }

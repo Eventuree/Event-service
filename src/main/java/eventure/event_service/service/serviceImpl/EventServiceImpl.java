@@ -5,15 +5,22 @@ import eventure.event_service.dto.mapper.EventMapper;
 import eventure.event_service.exception.ForbiddenException;
 import eventure.event_service.exception.ResourceNotFoundException;
 import eventure.event_service.model.EventStatus;
+import eventure.event_service.model.RegistrationStatus;
 import eventure.event_service.model.entity.Event;
 import eventure.event_service.model.entity.EventCategory;
+import eventure.event_service.model.entity.EventParticipant;
 import eventure.event_service.repository.EventCategoryRepository;
+import eventure.event_service.repository.EventParticipantRepository;
 import eventure.event_service.repository.EventRepository;
+import eventure.event_service.service.EventParticipantService;
 import eventure.event_service.service.EventService;
 import eventure.event_service.service.imageStorage.ImageService;
 import eventure.event_service.utils.EventSpecificationsUtils;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +41,7 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final ImageService imageService;
     private final TransactionTemplate transactionTemplate;
+    private final EventParticipantRepository eventParticipantRepository;
 
     @Override
     public List<EventResponseDto> getTrendingEvents() {
@@ -196,4 +204,24 @@ public class EventServiceImpl implements EventService {
 
         return events.map(eventMapper::toDto);
     }
+
+    @Override
+    public List<EventResponseDto> getUserEventsByStatus(Long userId, RegistrationStatus status) {
+        List<EventParticipant> participants = eventParticipantRepository.findByUserIdAndStatus(userId, status);
+
+        return participants.stream()
+                .map(EventParticipant::getEvent)
+                .map(eventMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EventResponseDto> getMyEvents(Long userId, RegistrationStatus status) {
+        List<EventResponseDto> createdEvents = getUserEvents(userId);
+        List<EventResponseDto> registeredEvents = getUserEventsByStatus(userId, status);
+
+        return Stream.concat(createdEvents.stream(), registeredEvents.stream())
+                .collect(Collectors.toList());
+    }
+
 }
