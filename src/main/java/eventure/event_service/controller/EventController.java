@@ -1,6 +1,7 @@
 package eventure.event_service.controller;
 
 import eventure.event_service.dto.*;
+import eventure.event_service.model.RegistrationStatus;
 import eventure.event_service.service.EventParticipantService;
 import eventure.event_service.service.EventService;
 import eventure.event_service.utils.SecurityHelper;
@@ -126,4 +127,23 @@ public class EventController {
 
         return ResponseEntity.ok(eventService.getArchivedEvents(userId, type, page, limit));
     }
+
+    @GetMapping("/registrations")
+    public ResponseEntity<List<EventResponseDto>> getUserRegistrations(
+            @RequestParam RegistrationStatus status,
+            HttpServletRequest request) {
+        Long userId = participantService.extractUserId(request);
+
+        return ResponseEntity.ok(eventService.getUserEventsByStatus(userId, status));
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<EventResponseDto>> getMyEvents(
+            @RequestParam(required = false, defaultValue = "APPROVED") RegistrationStatus status,
+            HttpServletRequest request) {
+        Long userId = participantService.extractUserId(request);
+
+        return ResponseEntity.ok(eventService.getMyEvents(userId, status));
+    }
+
 }
