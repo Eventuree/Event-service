@@ -62,4 +62,11 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             @Param("now") LocalDateTime now,
             Pageable pageable
     );
+
+
+    @Query("SELECT e FROM Event e WHERE e.eventDate BETWEEN :startTime AND :endTime")
+    List<Event> findEventsEndedInTimeRange(
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime
+    );
 }
