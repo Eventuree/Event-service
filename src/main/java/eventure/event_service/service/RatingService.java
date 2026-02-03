@@ -6,6 +6,4 @@ public interface RatingService {
     Double getOrganizerRating(Long organizerId);
 
     void rateEvent(Long eventId, Integer score, Long raterId);
-
-    Long extractUserId(HttpServletRequest request);
 }

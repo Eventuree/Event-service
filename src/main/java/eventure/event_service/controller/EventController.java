@@ -48,7 +48,7 @@ public class EventController {
             @RequestPart EventUpdateDto eventDto,
             @RequestPart(value = "photo", required = false) MultipartFile photo,
             HttpServletRequest request) {
-        Long currentUserId = participantService.extractUserId(request);
+        Long currentUserId = securityHelper.extractUserId(request);
 
         return ResponseEntity.ok(eventService.updateEventById(id, eventDto, photo, currentUserId));
     }
@@ -65,7 +65,7 @@ public class EventController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEventById(@PathVariable Long id,
                                              HttpServletRequest request) {
-        Long currentUserId = participantService.extractUserId(request);
+        Long currentUserId = securityHelper.extractUserId(request);
         eventService.deleteEventById(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
@@ -73,7 +73,7 @@ public class EventController {
     @GetMapping("/{eventId}/participants")
     public ResponseEntity<List<EventParticipantDto>> getParticipants(
             @PathVariable Long eventId, HttpServletRequest request) {
-        Long currentUserId = participantService.extractUserId(request);
+        Long currentUserId = securityHelper.extractUserId(request);
 
         return ResponseEntity.ok(participantService.getParticipants(eventId, currentUserId));
     }
@@ -84,7 +84,7 @@ public class EventController {
             @PathVariable Long userId,
             @RequestBody UpdateStatusRequest request,
             HttpServletRequest httpRequest) {
-        Long currentUserId = participantService.extractUserId(httpRequest);
+        Long currentUserId = securityHelper.extractUserId(httpRequest);
 
         participantService.changeStatus(eventId, userId, request.getStatus(), currentUserId);
         return ResponseEntity.ok().build();
@@ -94,7 +94,7 @@ public class EventController {
     public ResponseEntity<EventParticipantDto> registerForEvent(
             @PathVariable Long id,
             HttpServletRequest request) {
-        Long userId = participantService.extractUserId(request);
+        Long userId = securityHelper.extractUserId(request);
         EventParticipantDto participant = participantService.registerParticipant(id, userId);
         return ResponseEntity.created(URI.create("/api/v1/events/" + id + "/participants"))
                 .body(participant);
@@ -104,7 +104,7 @@ public class EventController {
     public ResponseEntity<Void> cancelRegistration(
             @PathVariable Long id,
             HttpServletRequest request) {
-        Long userId = participantService.extractUserId(request);
+        Long userId = securityHelper.extractUserId(request);
         participantService.cancelRegistration(id, userId);
         return ResponseEntity.noContent().build();
     }
@@ -132,7 +132,7 @@ public class EventController {
     public ResponseEntity<List<EventResponseDto>> getUserRegistrations(
             @RequestParam RegistrationStatus status,
             HttpServletRequest request) {
-        Long userId = participantService.extractUserId(request);
+        Long userId = securityHelper.extractUserId(request);
 
         return ResponseEntity.ok(eventService.getUserEventsByStatus(userId, status));
     }
@@ -141,7 +141,7 @@ public class EventController {
     public ResponseEntity<List<EventResponseDto>> getMyEvents(
             @RequestParam(required = false, defaultValue = "APPROVED") RegistrationStatus status,
             HttpServletRequest request) {
-        Long userId = participantService.extractUserId(request);
+        Long userId = securityHelper.extractUserId(request);
 
         return ResponseEntity.ok(eventService.getMyEvents(userId, status));
     }

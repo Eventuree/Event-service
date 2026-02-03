@@ -60,12 +60,4 @@ public class RatingServiceImpl implements RatingService {
 
         ratingRepository.save(rating);
     }
-
-    public Long extractUserId(HttpServletRequest request) {
-        String userId = request.getHeader("X-User-Id");
-        if (userId == null || userId.isBlank()) {
-            throw new IllegalArgumentException("User ID is missing in headers");
-        }
-        return Long.parseLong(userId);
-    }
 }

@@ -99,27 +99,6 @@ public class EventParticipantServiceImpl implements EventParticipantService {
         }
     }
 
-    public Long extractUserId(HttpServletRequest request) {
-        Object userIdAttr = request.getAttribute("userId");
-        if (userIdAttr instanceof Long userId) {
-            return userId;
-        }
-
-        if (userIdAttr instanceof Number num) {
-            return num.longValue();
-        }
-
-        if (userIdAttr instanceof String str && !str.isBlank()) {
-            try {
-                return Long.parseLong(str);
-            } catch (NumberFormatException ignored) {
-            }
-        }
-
-        throw new UnauthorizedException(
-                "Authenticated user id is not present in request attributes");
-    }
-
     private Event getEventAndValidateOrganizer(Long eventId, Long currentUserId) {
         Event event =
                 eventRepository

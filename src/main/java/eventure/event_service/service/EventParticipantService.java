@@ -11,8 +11,6 @@ public interface EventParticipantService {
     void changeStatus(
             Long eventId, Long participantId, RegistrationStatus newStatus, Long currentUserId);
 
-    Long extractUserId(HttpServletRequest request);
-
     EventParticipantDto registerParticipant(Long eventId, Long userId);
 
     void cancelRegistration(Long eventId, Long userId);
