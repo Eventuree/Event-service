@@ -26,4 +26,12 @@ public interface EventParticipantRepository
             @Param("userId") Long userId,
             @Param("status") RegistrationStatus status);
 
+
+    @Query("SELECT ep FROM EventParticipant ep " +
+            "WHERE ep.id.eventId = :eventId AND ep.status = :status")
+    List<EventParticipant> findByEventIdAndStatus(
+            @Param("eventId") Long eventId,
+            @Param("status") RegistrationStatus status
+    );
+
 }
